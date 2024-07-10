@@ -21,7 +21,8 @@ RUN git clone https://github.com/comfyanonymous/ComfyUI.git && \
     pip install -r requirements.txt && \
     git clone https://github.com/ltdrdata/ComfyUI-Manager.git custom_nodes/ComfyUI-Manager && \
     cd custom_nodes/ComfyUI-Manager && \
-    pip install -r requirements.txt
+    pip install -r requirements.txt && \
+    pip install -U xformers --index-url https://download.pytorch.org/whl/cu121
 
 # Stage 3: Model Setup and Final Image
 FROM comfyui-install as final
