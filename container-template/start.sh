@@ -67,14 +67,12 @@ start_code_server() {
 # ---------------------------------------------------------------------------- #
 
 start_nginx
+setup_ssh
 start_code_server
-
-execute_script "/pre_start.sh" "Running pre-start script..."
+export_env_vars
 
 echo "Pod Started"
 
-setup_ssh
-export_env_vars
 
 execute_script "/post_start.sh" "Running post-start script..."
 
