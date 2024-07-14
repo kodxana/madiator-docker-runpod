@@ -74,7 +74,7 @@ export_env_vars
 echo "Pod Started"
 
 
-execute_script "/post_start.sh" "Running post-start script..."
+execute_script "/pre_start.sh" "Running post-start script..."
 
 echo "Start script(s) finished, pod is ready to use."
 
