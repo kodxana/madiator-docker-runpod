@@ -15,7 +15,7 @@ RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86
     rm cuda-keyring_1.1-1_all.deb
 
 # Download and install Ollama
-RUN curl -L https://github.com/ollama/ollama/releases/download/v0.2.5/ollama-linux-amd64 -o /usr/bin/ollama && \
+RUN curl -L https://github.com/ollama/ollama/releases/download/v0.2.6/ollama-linux-amd64 -o /usr/bin/ollama && \
     chmod +x /usr/bin/ollama
 
 COPY settings.json /root/.local/share/code-server/User/settings.json
