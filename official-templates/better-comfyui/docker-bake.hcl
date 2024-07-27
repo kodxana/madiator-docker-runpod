@@ -41,19 +41,3 @@ target "light-version" {
     }
     tags = ["madiator2011/better-comfyui:light"]
 }
-
-target "light-experimental" {
-    dockerfile = "Dockerfile"
-    args = {
-        BASE_IMAGE = "madiator2011/better-base:light-cuda",
-        TORCH = "torch==2.3.0+cu121 -f https://download.pytorch.org/whl/torch_stable.html",
-        PYTHON_VERSION1 = "3.10",
-        INCLUDE_MODELS = "false"
-    }
-    contexts = {
-        scripts = "../../container-template"
-        proxy = "../../container-template/proxy"
-        logo = "../../container-template"
-    }
-    tags = ["madiator2011/better-comfyui:light-experimental"]
-}
