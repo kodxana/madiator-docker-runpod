@@ -1,5 +1,5 @@
 group "default" {
-    targets = ["full-version", "light-version", "light-experimental"]
+    targets = ["full-version", "light-version"]
 }
 
 target "base" {
@@ -7,7 +7,7 @@ target "base" {
     args = {
         BASE_IMAGE = "madiator2011/better-base:cuda12.1",
         TORCH = "torch==2.3.0+cu121 -f https://download.pytorch.org/whl/torch_stable.html",
-        PYTHON_VERSION1 = "3.10"
+        PYTHON_VERSION1 = "3.11"
     }
     contexts = {
         scripts = "../../container-template"
@@ -41,3 +41,4 @@ target "light-version" {
     }
     tags = ["madiator2011/better-comfyui:light"]
 }
+

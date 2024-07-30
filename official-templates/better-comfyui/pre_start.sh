@@ -12,7 +12,7 @@ print_feedback() {
 
 # Function to run rsync with progress bar and optimizations
 rsync_with_progress() {
-    rsync -aHvx --info=progress2 "$@"
+    rsync -aHvx --info=progress2 --ignore-existing --update --stats "$@"
 }
 
 # Check for required commands
@@ -25,6 +25,16 @@ done
 
 LOG_FILE="/workspace/comfyui.log"
 
+# Copy the notebook to the /workspace directory
+print_feedback "Copying notebook to /workspace..."
+cp /comfyui_extras.ipynb /workspace/
+
+# Check if the NO_SYNC variable is set to true
+if [ "${NO_SYNC}" == "true" ]; then
+    print_feedback "Skipping sync and startup as per environment variable setting."
+    exec bash -c 'sleep infinity'
+fi
+
 print_feedback "Starting ComfyUI setup..."
 
 print_feedback "Syncing virtual environment..."
@@ -33,7 +43,7 @@ rsync_with_progress /venv/ /workspace/venv/
 print_feedback "Activating virtual environment..."
 export VIRTUAL_ENV="/workspace/venv"
 export PATH="$VIRTUAL_ENV/bin:$PATH"
-source /workspace/venv/bin/activate
+source "$VIRTUAL_ENV/bin/activate"
 
 export PYTHONUNBUFFERED=1
 
@@ -51,7 +61,7 @@ print_feedback "ComfyUI will be available at http://0.0.0.0:3000"
 
 # Check if CUSTOM_ARGS is set and not empty
 if [ -n "$CUSTOM_ARGS" ]; then
-    exec /workspace/venv/bin/python main.py --listen --port 3000 $CUSTOM_ARGS 2>&1 | tee -a $LOG_FILE
+    exec python main.py --listen --port 3000 $CUSTOM_ARGS 2>&1 | tee -a $LOG_FILE
 else
-    exec /workspace/venv/bin/python main.py --listen --port 3000 2>&1 | tee -a $LOG_FILE
+    exec python main.py --listen --port 3000 2>&1 | tee -a $LOG_FILE
 fi

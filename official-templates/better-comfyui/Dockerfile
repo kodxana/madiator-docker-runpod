@@ -1,36 +1,37 @@
 # Stage 1: Base Image
 FROM madiator2011/better-base:cuda12.1 as base
 
-ARG PYTHON_VERSION1=3.10
+ARG PYTHON_VERSION1=3.11
 ARG TORCH=torch==2.3.0+cu121
 
 # Stage 2: ComfyUI Installation
 FROM base as comfyui-install
 
-# Create and activate virtual environment for ComfyUI installation
-RUN python -m venv /venv
-ENV PATH="/venv/bin:$PATH"
-ENV VIRTUAL_ENV="/venv"
+# Create virtual environment in /workspace/venv
+RUN python -m venv /workspace/venv
 
-# Install PyTorch within the virtual environment
-RUN if [ -n "${TORCH}" ]; then \
-    /venv/bin/pip install --upgrade --no-cache-dir ${TORCH}; \
-    fi 
+# Set environment variables for the virtual environment
+ENV VIRTUAL_ENV="/workspace/venv"
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN git clone https://github.com/comfyanonymous/ComfyUI.git && \
-    cd /ComfyUI && \
-    /venv/bin/pip install -r requirements.txt && \
-    git clone https://github.com/ltdrdata/ComfyUI-Manager.git custom_nodes/ComfyUI-Manager && \
-    cd custom_nodes/ComfyUI-Manager && \
-    /venv/bin/pip install -r requirements.txt && \
-    /venv/bin/pip install -U xformers --index-url https://download.pytorch.org/whl/cu121 && \
-    /venv/bin/pip install -U accelerate wheel
+# Activate the virtual environment and install packages
+RUN $VIRTUAL_ENV/bin/pip install --upgrade pip setuptools wheel && \
+    if [ -n "${TORCH}" ]; then \
+        $VIRTUAL_ENV/bin/pip install --no-cache-dir ${TORCH}; \
+    fi && \
+    git clone https://github.com/comfyanonymous/ComfyUI.git /ComfyUI && \
+    $VIRTUAL_ENV/bin/pip install -r /ComfyUI/requirements.txt && \
+    git clone https://github.com/ltdrdata/ComfyUI-Manager.git /ComfyUI/custom_nodes/ComfyUI-Manager && \
+    $VIRTUAL_ENV/bin/pip install -r /ComfyUI/custom_nodes/ComfyUI-Manager/requirements.txt && \
+    $VIRTUAL_ENV/bin/pip install xformers accelerate wheel comfy-cli insightface && \
+    $VIRTUAL_ENV/bin/pip install ipykernel ipywidgets && \
+    $VIRTUAL_ENV/bin/python -m ipykernel install --name "python3" --display-name "Python 3 (Workspace Venv)"
 
 # Stage 3: Model Setup
 FROM comfyui-install as model-setup
 
 # Create model and cache directories
-RUN mkdir -p /root/.cache/huggingface && mkdir -p /comfy-models
+RUN mkdir -p /root/.cache/huggingface /comfy-models
 
 ARG INCLUDE_MODELS=false
 
@@ -59,12 +60,15 @@ RUN if [ "${INCLUDE_MODELS}" = "true" ]; then \
 # Stage 4: Final Image
 FROM comfyui-install as final
 
+# Move virtual environment from /workspace/venv to /venv
+RUN mv /workspace/venv /venv
+
 # Copy models if they were included
 COPY --from=model-setup /comfy-models /comfy-models
 
 # Set environment variables for runtime
-ENV PATH="/workspace/venv/bin:$PATH"
 ENV VIRTUAL_ENV="/workspace/venv"
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Copy the README.md
 COPY README.md /usr/share/nginx/html/README.md
@@ -78,6 +82,7 @@ COPY pre_start.sh /pre_start.sh
 COPY --from=scripts start.sh /
 RUN chmod +x /start.sh
 RUN chmod +x /pre_start.sh
+COPY comfyui_extras.ipynb /comfyui_extras.ipynb
 
 # CMD
 CMD [ "/start.sh" ]
