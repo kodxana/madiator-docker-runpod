@@ -7,25 +7,16 @@ trigger:
     - custom
 
 steps:
-- name: setup-docker
-  image: docker:latest
-  privileged: true
-  commands:
-  - dockerd-entrypoint.sh & # Start Docker daemon
-  - sleep 20 # Give the Docker daemon some time to start
-  - docker buildx create --use # Set up buildx
-
 - name: build-comfyui
   image: docker:latest
   privileged: true
   environment:
-    DOCKER_HOST: tcp://localhost:2375
     DOCKER_USERNAME:
       from_secret: docker_username
     DOCKER_PASSWORD:
       from_secret: docker_password
   commands:
-  - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+  - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
   - cd official-templates/better-comfyui
   - docker buildx bake --push --no-cache testing --label build_target=comfyui
 
@@ -46,25 +37,16 @@ trigger:
     - custom
 
 steps:
-- name: setup-docker
-  image: docker:latest
-  privileged: true
-  commands:
-  - dockerd-entrypoint.sh & # Start Docker daemon
-  - sleep 20 # Give the Docker daemon some time to start
-  - docker buildx create --use # Set up buildx
-
 - name: build-base
   image: docker:latest
   privileged: true
   environment:
-    DOCKER_HOST: tcp://localhost:2375
     DOCKER_USERNAME:
       from_secret: docker_username
     DOCKER_PASSWORD:
       from_secret: docker_password
   commands:
-  - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+  - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
   - cd official-templates/better-base
   - docker buildx bake --push --no-cache testing --label build_target=base
 
@@ -85,25 +67,16 @@ trigger:
     - custom
 
 steps:
-- name: setup-docker
-  image: docker:latest
-  privileged: true
-  commands:
-  - dockerd-entrypoint.sh & # Start Docker daemon
-  - sleep 20 # Give the Docker daemon some time to start
-  - docker buildx create --use # Set up buildx
-
 - name: build-everydream2
   image: docker:latest
   privileged: true
   environment:
-    DOCKER_HOST: tcp://localhost:2375
     DOCKER_USERNAME:
       from_secret: docker_username
     DOCKER_PASSWORD:
       from_secret: docker_password
   commands:
-  - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+  - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
   - cd official-templates/better-everydream2
   - docker buildx bake --push --no-cache testing --label build_target=everydream2
 
@@ -124,25 +97,16 @@ trigger:
     - custom
 
 steps:
-- name: setup-docker
-  image: docker:latest
-  privileged: true
-  commands:
-  - dockerd-entrypoint.sh & # Start Docker daemon
-  - sleep 20 # Give the Docker daemon some time to start
-  - docker buildx create --use # Set up buildx
-
 - name: build-ollama
   image: docker:latest
   privileged: true
   environment:
-    DOCKER_HOST: tcp://localhost:2375
     DOCKER_USERNAME:
       from_secret: docker_username
     DOCKER_PASSWORD:
       from_secret: docker_password
   commands:
-  - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+  - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
   - cd official-templates/better-ollama
   - docker buildx bake --push --no-cache testing --label build_target=ollama
 
@@ -163,25 +127,16 @@ trigger:
     - custom
 
 steps:
-- name: setup-docker
-  image: docker:latest
-  privileged: true
-  commands:
-  - dockerd-entrypoint.sh & # Start Docker daemon
-  - sleep 20 # Give the Docker daemon some time to start
-  - docker buildx create --use # Set up buildx
-
 - name: build-pytorch
   image: docker:latest
   privileged: true
   environment:
-    DOCKER_HOST: tcp://localhost:2375
     DOCKER_USERNAME:
       from_secret: docker_username
     DOCKER_PASSWORD:
       from_secret: docker_password
   commands:
-  - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+  - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
   - cd official-templates/better-pytorch
   - docker buildx bake --push --no-cache testing --label build_target=pytorch
 
