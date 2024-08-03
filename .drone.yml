@@ -1,0 +1,141 @@
+kind: pipeline
+type: docker
+name: build-comfyui
+
+steps:
+- name: setup-docker
+  image: docker:latest
+  privileged: true
+  commands:
+  - dockerd-entrypoint.sh & # Start Docker daemon
+  - sleep 20 # Give the Docker daemon some time to start
+  - docker buildx create --use # Set up buildx
+
+- name: build-comfyui
+  image: docker:latest
+  privileged: true
+  environment:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_USERNAME:
+      from_secret: docker_username
+    DOCKER_PASSWORD:
+      from_secret: docker_password
+  commands:
+  - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+  - cd official-templates/better-comfyui
+  - docker buildx bake --push --no-cache testing
+
+---
+
+kind: pipeline
+type: docker
+name: build-base
+
+steps:
+- name: setup-docker
+  image: docker:latest
+  privileged: true
+  commands:
+  - dockerd-entrypoint.sh & # Start Docker daemon
+  - sleep 20 # Give the Docker daemon some time to start
+  - docker buildx create --use # Set up buildx
+
+- name: build-base
+  image: docker:latest
+  privileged: true
+  environment:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_USERNAME:
+      from_secret: docker_username
+    DOCKER_PASSWORD:
+      from_secret: docker_password
+  commands:
+  - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+  - cd official-templates/better-base
+  - docker buildx bake --push --no-cache
+
+---
+
+kind: pipeline
+type: docker
+name: build-everydream2
+
+steps:
+- name: setup-docker
+  image: docker:latest
+  privileged: true
+  commands:
+  - dockerd-entrypoint.sh & # Start Docker daemon
+  - sleep 20 # Give the Docker daemon some time to start
+  - docker buildx create --use # Set up buildx
+
+- name: build-everydream2
+  image: docker:latest
+  privileged: true
+  environment:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_USERNAME:
+      from_secret: docker_username
+    DOCKER_PASSWORD:
+      from_secret: docker_password
+  commands:
+  - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+  - cd official-templates/better-everydream2
+  - docker buildx bake --push --no-cache
+---
+
+kind: pipeline
+type: docker
+name: build-ollama
+
+steps:
+- name: setup-docker
+  image: docker:latest
+  privileged: true
+  commands:
+  - dockerd-entrypoint.sh & # Start Docker daemon
+  - sleep 20 # Give the Docker daemon some time to start
+  - docker buildx create --use # Set up buildx
+
+- name: build-ollama
+  image: docker:latest
+  privileged: true
+  environment:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_USERNAME:
+      from_secret: docker_username
+    DOCKER_PASSWORD:
+      from_secret: docker_password
+  commands:
+  - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+  - cd official-templates/better-ollama
+  - docker buildx bake --push --no-cache
+
+---
+
+kind: pipeline
+type: docker
+name: build-pytorch
+
+steps:
+- name: setup-docker
+  image: docker:latest
+  privileged: true
+  commands:
+  - dockerd-entrypoint.sh & # Start Docker daemon
+  - sleep 20 # Give the Docker daemon some time to start
+  - docker buildx create --use # Set up buildx
+
+- name: build-pytorch
+  image: docker:latest
+  privileged: true
+  environment:
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_USERNAME:
+      from_secret: docker_username
+    DOCKER_PASSWORD:
+      from_secret: docker_password
+  commands:
+  - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+  - cd official-templates/better-pytorch
+  - docker buildx bake --push --no-cache
