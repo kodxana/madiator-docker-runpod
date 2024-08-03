@@ -1,5 +1,5 @@
 group "default" {
-    targets = ["full-version", "light-version"]
+    targets = ["full-version", "light-version", "testing"]
 }
 
 target "base" {
@@ -42,3 +42,15 @@ target "light-version" {
     tags = ["madiator2011/better-comfyui:light"]
 }
 
+target "testing" {
+    inherits = ["base"]
+    args = {
+        INCLUDE_MODELS = "false"
+    }
+    contexts = {
+        scripts = "../../container-template"
+        proxy = "../../container-template/proxy"
+        logo = "../../container-template"
+    }
+    tags = ["madiator2011/better-comfyui:testing"]
+}
