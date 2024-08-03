@@ -27,7 +27,13 @@ steps:
   commands:
   - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
   - cd official-templates/better-comfyui
-  - docker buildx bake --push --no-cache testing
+  - docker buildx bake --push --no-cache testing --label build_target=comfyui
+
+- name: cleanup
+  image: docker:latest
+  privileged: true
+  commands:
+  - docker images -q --filter "label=build_target=comfyui" | xargs -r docker rmi
 
 ---
 
@@ -60,7 +66,13 @@ steps:
   commands:
   - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
   - cd official-templates/better-base
-  - docker buildx bake --push --no-cache testing
+  - docker buildx bake --push --no-cache testing --label build_target=base
+
+- name: cleanup
+  image: docker:latest
+  privileged: true
+  commands:
+  - docker images -q --filter "label=build_target=base" | xargs -r docker rmi
 
 ---
 
@@ -93,7 +105,13 @@ steps:
   commands:
   - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
   - cd official-templates/better-everydream2
-  - docker buildx bake --push --no-cache testing
+  - docker buildx bake --push --no-cache testing --label build_target=everydream2
+
+- name: cleanup
+  image: docker:latest
+  privileged: true
+  commands:
+  - docker images -q --filter "label=build_target=everydream2" | xargs -r docker rmi
 
 ---
 
@@ -126,7 +144,13 @@ steps:
   commands:
   - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
   - cd official-templates/better-ollama
-  - docker buildx bake --push --no-cache testing
+  - docker buildx bake --push --no-cache testing --label build_target=ollama
+
+- name: cleanup
+  image: docker:latest
+  privileged: true
+  commands:
+  - docker images -q --filter "label=build_target=ollama" | xargs -r docker rmi
 
 ---
 
@@ -159,4 +183,10 @@ steps:
   commands:
   - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
   - cd official-templates/better-pytorch
-  - docker buildx bake --push --no-cache testing
+  - docker buildx bake --push --no-cache testing --label build_target=pytorch
+
+- name: cleanup
+  image: docker:latest
+  privileged: true
+  commands:
+  - docker images -q --filter "label=build_target=pytorch" | xargs -r docker rmi
