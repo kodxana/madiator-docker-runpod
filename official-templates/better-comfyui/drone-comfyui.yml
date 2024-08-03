@@ -1,0 +1,21 @@
+kind: pipeline
+type: docker
+name: build-comfyui
+
+trigger:
+  event:
+    - custom
+
+steps:
+- name: build-comfyui
+  image: docker:latest
+  privileged: true
+  environment:
+    DOCKER_USERNAME:
+      from_secret: docker_username
+    DOCKER_PASSWORD:
+      from_secret: docker_password
+  commands:
+  - echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+  - cd official-templates/better-comfyui
+  - docker buildx bake --push --no-cache testing
