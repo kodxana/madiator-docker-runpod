@@ -2,6 +2,10 @@ kind: pipeline
 type: docker
 name: build-comfyui
 
+trigger:
+  event:
+    - custom
+
 steps:
 - name: setup-docker
   image: docker:latest
@@ -31,6 +35,10 @@ kind: pipeline
 type: docker
 name: build-base
 
+trigger:
+  event:
+    - custom
+
 steps:
 - name: setup-docker
   image: docker:latest
@@ -52,13 +60,17 @@ steps:
   commands:
   - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
   - cd official-templates/better-base
-  - docker buildx bake --push --no-cache
+  - docker buildx bake --push --no-cache testing
 
 ---
 
 kind: pipeline
 type: docker
 name: build-everydream2
+
+trigger:
+  event:
+    - custom
 
 steps:
 - name: setup-docker
@@ -81,12 +93,17 @@ steps:
   commands:
   - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
   - cd official-templates/better-everydream2
-  - docker buildx bake --push --no-cache
+  - docker buildx bake --push --no-cache testing
+
 ---
 
 kind: pipeline
 type: docker
 name: build-ollama
+
+trigger:
+  event:
+    - custom
 
 steps:
 - name: setup-docker
@@ -109,13 +126,17 @@ steps:
   commands:
   - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
   - cd official-templates/better-ollama
-  - docker buildx bake --push --no-cache
+  - docker buildx bake --push --no-cache testing
 
 ---
 
 kind: pipeline
 type: docker
 name: build-pytorch
+
+trigger:
+  event:
+    - custom
 
 steps:
 - name: setup-docker
@@ -138,4 +159,4 @@ steps:
   commands:
   - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
   - cd official-templates/better-pytorch
-  - docker buildx bake --push --no-cache
+  - docker buildx bake --push --no-cache testing
