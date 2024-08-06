@@ -3,13 +3,11 @@ group "default" {
         "py311-cuda121",
         "py311-cuda118",
         "py311-cuda124",
-        "py38-rocm56",
+        "py310-rocm56",
         "py310-rocm57",
         "py310-rocm602",
-        "py39-rocm60",
-        "py39-rocm61",
+        "py310-rocm60",
         "py310-rocm61",
-        "py39-rocm612",
         "py310-rocm612"
     ]
 }
@@ -27,7 +25,7 @@ group "rocm" {
 
 target "py311-cuda121" {
     contexts = {
-        scripts = "../../container-template"
+        default = "../../container-template"
         proxy = "../../container-template/proxy"
         logo = "../../container-template"
     }
@@ -41,7 +39,7 @@ target "py311-cuda121" {
 
 target "py311-cuda118" {
     contexts = {
-        scripts = "../../container-template"
+        default = "../../container-template"
         proxy = "../../container-template/proxy"
         logo = "../../container-template"
     }
@@ -55,7 +53,7 @@ target "py311-cuda118" {
 
 target "py311-cuda124" {
     contexts = {
-        scripts = "../../container-template"
+        default = "../../container-template"
         proxy = "../../container-template/proxy"
         logo = "../../container-template"
     }
@@ -67,10 +65,9 @@ target "py311-cuda124" {
     tags = ["madiator2011/better-base:cuda12.4"]
 }
 
-# ROCm Targets
 target "py310-rocm56" {
     contexts = {
-        scripts = "../../container-template"
+        default = "../../container-template"
         proxy = "../../container-template/proxy"
         logo = "../../container-template"
     }
@@ -84,7 +81,7 @@ target "py310-rocm56" {
 
 target "py310-rocm57" {
     contexts = {
-        scripts = "../../container-template"
+        default = "../../container-template"
         proxy = "../../container-template/proxy"
         logo = "../../container-template"
     }
@@ -98,7 +95,7 @@ target "py310-rocm57" {
 
 target "py310-rocm602" {
     contexts = {
-        scripts = "../../container-template"
+        default = "../../container-template"
         proxy = "../../container-template/proxy"
         logo = "../../container-template"
     }
@@ -112,7 +109,7 @@ target "py310-rocm602" {
 
 target "py310-rocm60" {
     contexts = {
-        scripts = "../../container-template"
+        default = "../../container-template"
         proxy = "../../container-template/proxy"
         logo = "../../container-template"
     }
@@ -126,7 +123,7 @@ target "py310-rocm60" {
 
 target "py310-rocm61" {
     contexts = {
-        scripts = "../../container-template"
+        default = "../../container-template"
         proxy = "../../container-template/proxy"
         logo = "../../container-template"
     }
@@ -140,7 +137,7 @@ target "py310-rocm61" {
 
 target "py310-rocm612" {
     contexts = {
-        scripts = "../../container-template"
+        default = "../../container-template"
         proxy = "../../container-template/proxy"
         logo = "../../container-template"
     }
