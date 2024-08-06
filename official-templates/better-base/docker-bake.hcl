@@ -3,9 +3,9 @@ group "default" {
         "py311-cuda121",
         "py311-cuda118",
         "py311-cuda124",
-        "py311-rocm56",
-        "py311-rocm57",
-        "py311-rocm612"
+        "py310-rocm56",
+        "py310-rocm57",
+        "py310-rocm612"
     ]
 }
 
@@ -51,7 +51,7 @@ target "py311-cuda124" {
     tags = ["madiator2011/better-base:cuda12.4"]
 }
 
-target "py311-rocm56" {
+target "py310-rocm56" {
     contexts = {
         scripts = "../../container-template"
         proxy = "../../container-template/proxy"
@@ -59,13 +59,13 @@ target "py311-rocm56" {
     }
     dockerfile = "Dockerfile"
     args = {
-        BASE_IMAGE = "rocm/pytorch:rocm5.6_ubuntu20.04_py3.11_pytorch_2.0.1",
-        PYTHON_VERSION = "3.11"
+        BASE_IMAGE = "rocm/pytorch:rocm5.6_ubuntu20.04_py3.10_pytorch_2.0.1",
+        PYTHON_VERSION = "3.10"
     }
     tags = ["madiator2011/better-base:rocm5.6"]
 }
 
-target "py311-rocm57" {
+target "py310-rocm57" {
     contexts = {
         scripts = "../../container-template"
         proxy = "../../container-template/proxy"
@@ -73,13 +73,13 @@ target "py311-rocm57" {
     }
     dockerfile = "Dockerfile"
     args = {
-        BASE_IMAGE = "rocm/pytorch:rocm5.7_ubuntu22.04_py3.11_pytorch_2.0.1",
-        PYTHON_VERSION = "3.11"
+        BASE_IMAGE = "rocm/pytorch:rocm5.7_ubuntu22.04_py3.10_pytorch_2.0.1",
+        PYTHON_VERSION = "3.10"
     }
     tags = ["madiator2011/better-base:rocm5.7"]
 }
 
-target "py311-rocm612" {
+target "py310-rocm612" {
     contexts = {
         scripts = "../../container-template"
         proxy = "../../container-template/proxy"
@@ -87,8 +87,8 @@ target "py311-rocm612" {
     }
     dockerfile = "Dockerfile"
     args = {
-        BASE_IMAGE = "rocm/pytorch:rocm6.1.2_ubuntu22.04_py3.11_pytorch_release-2.1.2",
-        PYTHON_VERSION = "3.11"
+        BASE_IMAGE = "rocm/pytorch:rocm6.1.2_ubuntu22.04_py3.10_pytorch_release-2.1.2",
+        PYTHON_VERSION = "3.10"
     }
     tags = ["madiator2011/better-base:rocm6.1.2"]
 }
