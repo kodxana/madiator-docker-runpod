@@ -23,6 +23,7 @@ group "rocm" {
     ]
 }
 
+# CUDA Targets
 target "py311-cuda121" {
     contexts = {
         default = "../../container-template"
@@ -65,6 +66,7 @@ target "py311-cuda124" {
     tags = ["madiator2011/better-base:cuda12.4"]
 }
 
+# ROCm Targets
 target "py310-rocm56" {
     contexts = {
         default = "../../container-template"
@@ -73,7 +75,7 @@ target "py310-rocm56" {
     }
     dockerfile = "Dockerfile"
     args = {
-        BASE_IMAGE = "rocm/pytorch:rocm5.6_ubuntu20.04_py3.10_pytorch_2.0.1",
+        BASE_IMAGE = "rocm/pytorch:rocm5.6_ubuntu20.04_py3.8_pytorch_2.0.1",
         PYTHON_VERSION = "3.10"
     }
     tags = ["madiator2011/better-base:rocm5.6"]
@@ -115,7 +117,7 @@ target "py310-rocm60" {
     }
     dockerfile = "Dockerfile"
     args = {
-        BASE_IMAGE = "rocm/pytorch:rocm6.0_ubuntu20.04_py3.10_pytorch_2.1.1",
+        BASE_IMAGE = "rocm/pytorch:rocm6.0_ubuntu20.04_py3.9_pytorch_2.1.1",
         PYTHON_VERSION = "3.10"
     }
     tags = ["madiator2011/better-base:rocm6.0"]
