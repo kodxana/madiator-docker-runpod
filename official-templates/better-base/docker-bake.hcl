@@ -14,6 +14,17 @@ group "default" {
     ]
 }
 
+group "rocm" {
+    targets = [
+        "py310-rocm56",
+        "py310-rocm57",
+        "py310-rocm602",
+        "py310-rocm60",
+        "py310-rocm61",
+        "py310-rocm612"
+    ]
+}
+
 target "py311-cuda121" {
     contexts = {
         scripts = "../../container-template"
