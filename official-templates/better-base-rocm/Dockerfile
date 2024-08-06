@@ -29,12 +29,14 @@ RUN pip install --upgrade --no-cache-dir pip
 COPY ms-toolsai.jupyter-2024.7.0.vsix /tmp/ms-toolsai.jupyter-2024.7.0.vsix
 
 # Install code-server and extensions
-RUN curl -fsSL https://code-server.dev/install.sh | sh && \
-    code-server --install-extension ms-python.python && \
-    code-server --install-extension ms-toolsai.vscode-jupyter-powertoys && \
-    code-server --install-extension /tmp/ms-toolsai.jupyter-2024.7.0.vsix
-    
-RUN rm /tmp/ms-toolsai.jupyter-2024.7.0.vsix
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+RUN curl -L -o /tmp/ms-toolsai.jupyter-2024.6.0.vsix https://open-vsx.org/api/ms-toolsai/jupyter/2024.6.0/file/ms-toolsai.jupyter-2024.6.0.vsix
+
+# Install code-server extensions
+RUN code-server --install-extension ms-python.python && \
+    code-server --install-extension /tmp/ms-toolsai.jupyter-2024.6.0.vsix && \
+    code-server --install-extension ms-toolsai.vscode-jupyter-powertoys
 
 # Pre-install Jupyter kernel and OhMyRunPod
 RUN pip install ipykernel && \
