@@ -1,16 +1,16 @@
 group "default" {
     targets = [
-        "py310-rocm56",
+        "py38-rocm56",
         "py310-rocm57",
         "py310-rocm602",
-        "py310-rocm60",
+        "py39-rocm60",
         "py310-rocm61",
         "py310-rocm612"
     ]
 }
 
 # ROCm Targets
-target "py310-rocm56" {
+target "py38-rocm56" {
     contexts = {
         default = "../../container-template"
         scripts = "../../container-template"
@@ -52,7 +52,7 @@ target "py310-rocm602" {
     tags = ["madiator2011/better-base:rocm6.0.2"]
 }
 
-target "py310-rocm60" {
+target "py39-rocm60" {
     contexts = {
         default = "../../container-template"
         scripts = "../../container-template"
