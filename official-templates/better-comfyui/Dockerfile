@@ -4,14 +4,21 @@ FROM madiator2011/better-base:cuda12.1 as base
 ARG PYTHON_VERSION1=3.11
 ARG TORCH=torch==2.3.0+cu121
 
+# Install fpart (which includes fpsync)
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && \
+    apt-get install -y fpart && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Stage 2: ComfyUI Installation
 FROM base as comfyui-install
 
-# Create virtual environment in /workspace/venv
-RUN python -m venv /workspace/venv
+# Create virtual environment
+RUN mkdir -p /workspace/runpod-venvs && python -m venv /workspace/runpod-venvs/better-comfyui
 
 # Set environment variables for the virtual environment
-ENV VIRTUAL_ENV="/workspace/venv"
+ENV VIRTUAL_ENV="/workspace/runpod-venvs/better-comfyui"
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Activate the virtual environment and install packages
@@ -37,7 +44,7 @@ ARG INCLUDE_MODELS=false
 
 # Download each model in a separate layer
 RUN if [ "${INCLUDE_MODELS}" = "true" ]; then \
-    wget -q --show-progress https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors -O /comfy-models/v1-5-pruned-emaonly.safetensors; \
+    wget -q --show-progress https://huggingface.co/Comfy-Org/stable-diffusion-v1-5-archive/resolve/main/v1-5-pruned-emaonly.safetensors -O /comfy-models/v1-5-pruned-emaonly.safetensors; \
     fi
 
 RUN if [ "${INCLUDE_MODELS}" = "true" ]; then \
@@ -61,13 +68,13 @@ RUN if [ "${INCLUDE_MODELS}" = "true" ]; then \
 FROM comfyui-install as final
 
 # Move virtual environment from /workspace/venv to /venv
-RUN mv /workspace/venv /venv
+RUN mv /workspace/runpod-venvs/better-comfyui /venv
 
 # Copy models if they were included
 COPY --from=model-setup /comfy-models /comfy-models
 
 # Set environment variables for runtime
-ENV VIRTUAL_ENV="/workspace/venv"
+ENV VIRTUAL_ENV="/workspace/runpod-venvs/better-comfyui"
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Copy the README.md

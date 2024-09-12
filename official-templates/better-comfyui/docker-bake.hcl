@@ -1,5 +1,5 @@
 group "default" {
-    targets = ["full-version", "light-version", "testing"]
+    targets = ["full-version", "light-version", "dev"]
 }
 
 target "base" {
@@ -21,11 +21,6 @@ target "full-version" {
     args = {
         INCLUDE_MODELS = "true"
     }
-    contexts = {
-        scripts = "../../container-template"
-        proxy = "../../container-template/proxy"
-        logo = "../../container-template"
-    }
     tags = ["madiator2011/better-comfyui:full"]
 }
 
@@ -34,23 +29,13 @@ target "light-version" {
     args = {
         INCLUDE_MODELS = "false"
     }
-    contexts = {
-        scripts = "../../container-template"
-        proxy = "../../container-template/proxy"
-        logo = "../../container-template"
-    }
     tags = ["madiator2011/better-comfyui:light"]
 }
 
-target "testing" {
+target "dev" {
     inherits = ["base"]
     args = {
         INCLUDE_MODELS = "false"
     }
-    contexts = {
-        scripts = "../../container-template"
-        proxy = "../../container-template/proxy"
-        logo = "../../container-template"
-    }
-    tags = ["madiator2011/better-comfyui:testing"]
+    tags = ["madiator2011/better-comfyui:dev"]
 }
