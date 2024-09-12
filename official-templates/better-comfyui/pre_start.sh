@@ -30,9 +30,10 @@ done
 
 LOG_FILE="/workspace/comfyui.log"
 
-# Copy the notebook to the /workspace directory
-print_feedback "Copying notebook to /workspace..."
+# Copy the notebook and install-flux.sh script to the /workspace directory
+print_feedback "Copying notebook and install script to /workspace..."
 cp /comfyui_extras.ipynb /workspace/
+cp /install-flux.sh /workspace/
 
 # Check if the NO_SYNC variable is set to true
 if [ "${NO_SYNC}" == "true" ]; then

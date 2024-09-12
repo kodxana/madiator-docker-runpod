@@ -91,5 +91,9 @@ RUN chmod +x /start.sh
 RUN chmod +x /pre_start.sh
 COPY comfyui_extras.ipynb /comfyui_extras.ipynb
 
+# Add the new install-flux.sh script
+COPY install-flux.sh /install-flux.sh
+RUN chmod +x /install-flux.sh
+
 # CMD
 CMD [ "/start.sh" ]
