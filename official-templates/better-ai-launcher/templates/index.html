@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Better App Launcher</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body, html {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        .apps-section {
+            width: 40%;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .logs-section {
+            width: 60%;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+        .app {
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .app h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        button {
+            border: none;
+            color: white;
+            padding: 12px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.1s;
+            width: 100%;
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        button i {
+            margin-right: 5px;
+        }
+        .start-button {
+            background-color: #4CAF50;
+        }
+        .start-button:hover:not(:disabled) {
+            background-color: #45a049;
+        }
+        .stop-button {
+            background-color: #f44336;
+        }
+        .stop-button:hover:not(:disabled) {
+            background-color: #da190b;
+        }
+        .log-button {
+            background-color: #008CBA;
+        }
+        .log-button:hover:not(:disabled) {
+            background-color: #007aa3;
+        }
+        .open-button {
+            background-color: #FF9800;
+        }
+        .open-button:hover:not(:disabled) {
+            background-color: #e68a00;
+        }
+        .install-button {
+            background-color: #9C27B0;
+            grid-column: span 2;
+        }
+        .install-button:hover {
+            background-color: #7B1FA2;
+        }
+        .force-kill-button {
+            background-color: #d9534f;
+        }
+        .force-kill-button:hover:not(:disabled) {
+            background-color: #c9302c;
+        }
+        #logs {
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 15px;
+            height: calc(100% - 50px);
+            overflow-y: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .error-message {
+            color: #ff6b6b;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+        h1 {
+            margin-top: 0;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        #currentAppName {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .status-running {
+            background-color: #4CAF50;
+        }
+        .status-stopped {
+            background-color: #f44336;
+        }
+
+        /* New styles for navbar and tabs */
+        .navbar {
+            background-color: #2a2a2a;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-logo {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+        }
+
+        .navbar-title {
+            color: #ffffff;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .navbar-disclaimer {
+            color: #888;
+            font-size: 0.8em;
+            font-style: italic;
+            margin-top: 5px;
+        }
+
+        .navbar-tabs {
+            display: flex;
+        }
+
+        .navbar-tabs a {
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 15px;
+            margin-left: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar-tabs a:hover {
+            background-color: #3a3a3a;
+        }
+
+        .navbar-tabs a.active {
+            background-color: #4CAF50;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        #killAllButton {
+            background-color: #d9534f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        #killAllButton:hover {
+            background-color: #c9302c;
+        }
+
+        /* Updated styles for layout */
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .navbar {
+            background-color: #333;
+            padding: 10px 0;
+        }
+        .content-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        #apps-tab {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+        .apps-section {
+            width: 40%;
+            height: 100%;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .logs-section {
+            width: 60%;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+        #logs-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            height: calc(100% - 60px); /* Adjust this value based on your layout */
+        }
+        #logs {
+            flex: 1;
+            overflow-y: auto;
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 60px; /* Space for the download button */
+            max-height: 100%; /* Ensure it doesn't exceed the container height */
+        }
+        .download-logs-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        #settings-tab {
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .logo-title-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+        }
+
+        .logo-title-container div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+
+        .disclaimer {
+            margin: 5px 0 0;
+            font-size: 0.9em;
+            color: #888;
+            font-style: italic;
+        }
+
+        .copyright {
+            text-align: center;
+            padding: 10px;
+            font-size: 0.8em;
+            color: #888;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: #1a1a1a;
+        }
+
+        .install-container {
+            margin-top: 10px;
+        }
+
+        .install-progress {
+            display: none;
+            margin-top: 10px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        .download-info {
+            margin-top: 5px;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+        }
+        .install-logs {
+            margin-top: 10px;
+            max-height: 100px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            background-color: #222;
+            padding: 5px;
+            border-radius: 3px;
+            display: none;
+        }
+        .install-stage {
+            margin-top: 5px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        #loadingMessage {
+            color: white;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .button-group button,
+        .fix-custom-nodes-button {
+            border: none;
+            color: white;
+            padding: 12px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.1s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .fix-custom-nodes-button {
+            background-color: #9C27B0;
+        }
+
+        .fix-custom-nodes-button:hover {
+            background-color: #7B1FA2;
+            transform: translateY(-2px);
+        }
+
+        .fix-custom-nodes-button i {
+            margin-right: 5px;
+        }
+
+        .progress-container {
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .progress-label {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .app {
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .button-group button,
+        .fix-custom-nodes-button,
+        .install-button {
+            border: none;
+            color: white;
+            padding: 12px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.1s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .install-logs,
+        .install-progress {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .install-logs {
+            max-height: 150px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            background-color: #222;
+            padding: 10px;
+            border-radius: 5px;
+            color: #fff;
+        }
+
+        #poddy {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 100px;
+            height: 100px;
+            background-image: url('/static/poddy.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            animation: dance 1s infinite;
+        }
+
+        @keyframes dance {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        /* Add or update these styles in the <style> section */
+        #poddy-animation {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .poddy {
+            position: absolute;
+            width: 15vmin;
+            height: 15vmin;
+            background-image: url('/static/poddy.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            transition: all 0.5s ease-in-out;
+        }
+
+        #special-item {
+            position: absolute;
+            width: 30vmin;
+            height: 30vmin;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        @keyframes dance {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-2vmin) rotate(-5deg); }
+            75% { transform: translateY(-2vmin) rotate(5deg); }
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+
+        .download-log-button {
+            background-color: #17a2b8;
+        }
+        .download-log-button:hover:not(:disabled) {
+            background-color: #138496;
+        }
+
+        #logs-container {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #logs {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 70px; /* Adjust this value to match the button size + padding */
+        }
+
+        .download-logs-btn {
+            position: absolute;
+            bottom: 10px; /* Reduced from 20px to 10px */
+            right: 10px; /* Reduced from 20px to 10px */
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+            padding: 0;
+        }
+
+        .download-logs-btn i {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .download-logs-btn:hover {
+            background-color: #138496;
+        }
+
+        .settings-container {
+            padding: 20px;
+        }
+
+        .settings-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .setting-group {
+            flex: 1 1 300px; /* This allows the items to grow and shrink, with a minimum width of 300px */
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .setting-group h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+
+        .ssh-details, .app {
+            background-color: #333;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .settings-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .settings-button:hover {
+            background-color: #45a049;
+        }
+
+        .ssh-password-form {
+            margin-top: 15px;
+        }
+
+        #newSshPassword {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .password-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .ssh-security-notice {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        .ssh-auth-options label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        #customPasswordInput {
+            margin-top: 10px;
+        }
+        #customPasswordInput input {
+            margin-right: 10px;
+        }
+
+        .ssh-password-form {
+            margin-top: 20px;
+        }
+
+        #newSshPassword {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #333;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .password-buttons {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .password-buttons button {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .password-buttons button:last-child {
+            margin-right: 0;
+        }
+
+        .ssh-details {
+            background-color: #2a2a2a;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .ssh-password-form {
+            margin-top: 15px;
+        }
+
+        #newSshPassword {
+            width: calc(100% - 20px);
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #333;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .password-buttons {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .password-buttons button {
+            flex: 1 0 30%;
+            margin: 5px;
+            min-width: 120px;
+        }
+
+        .ssh-security-notice {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 10px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div id="loadingOverlay">
+        <div class="spinner"></div>
+        <div id="loadingMessage">Connecting to WebSocket...</div>
+    </div>
+    <div class="main-container">
+        <div class="navbar">
+            <div class="navbar-brand">
+                <svg class="navbar-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M74.5 51.1c-25.4 14.9-27 16-29.6 20.2-1.8 3-1.9 5.3-1.9 32.3 0 21.7.3 29.4 1.3 30.6 1.9 2.5 46.7 27.9 48.5 27.6 1.5-.3 1.7-3.1 2-27.7.2-21.9 0-27.8-1.1-29.5-.8-1.2-9.9-6.8-20.2-12.6-10.3-5.8-19.4-11.5-20.2-12.7-1.8-2.6-.9-5.9 1.8-7.4 1.6-.8 6.3 0 21.8 4C87.8 78.7 98 81 99.6 81c4.4 0 49.9-25.9 49.9-28.4 0-1.6-3.4-2.8-24-8.2-13.2-3.5-25.1-6.3-26.5-6.3-1.4.1-12.4 5.9-24.5 13z" fill="#ffffff"/>
+                    <path d="m137.2 68.1-3.3 2.1 6.3 3.7c3.5 2 6.3 4.3 6.3 5.1 0 .9-8 6.1-19.4 12.6-10.6 6-20 11.9-20.7 12.9-1.2 1.6-1.4 7.2-1.2 29.4.3 24.8.5 27.6 2 27.9 1.8.3 46.6-25.1 48.6-27.6.9-1.2 1.2-8.8 1.2-30.2s-.3-29-1.2-30.2c-1.6-1.9-12.1-7.8-13.9-7.8-.8 0-2.9 1-4.7 2.1z" fill="#ffffff"/>
+                </svg>
+                <div>
+                    <div class="navbar-title">RunPod Better App Manager</div>
+                    <div class="navbar-disclaimer">This template is designed for use with RunPod Network Storage</div>
+                </div>
+            </div>
+            <div class="navbar-tabs">
+                <a href="#" class="tab-link active" onclick="openTab(event, 'apps-tab')">Apps</a>
+                <a href="#" class="tab-link" onclick="openTab(event, 'settings-tab')">Settings</a>
+            </div>
+        </div>
+        <div class="content-container">
+            <div id="apps-tab" class="tab-content active">
+                <div class="apps-section">
+                    <div id="apps">
+                        {% for app_key, app_info in apps.items() %}
+                        <div class="app">
+                            <h2>{{ app_info.name }}</h2>
+                            {% if app_status[app_key]['dirs_ok'] %}
+                                <div class="button-group">
+                                    <button onclick="startApp('{{ app_key }}')" id="start-{{ app_key }}" class="start-button" {% if app_status[app_key]['status'] == 'running' %}disabled{% endif %}>
+                                        <i class="fas fa-play"></i> Start
+                                    </button>
+                                    <button onclick="stopApp('{{ app_key }}')" id="stop-{{ app_key }}" class="stop-button" {% if app_status[app_key]['status'] == 'stopped' %}disabled{% endif %}>
+                                        <i class="fas fa-stop"></i> Stop
+                                    </button>
+                                    <button onclick="viewLogs('{{ app_key }}', '{{ app_info.name }}')" id="log-{{ app_key }}" class="log-button">
+                                        <i class="fas fa-list-alt"></i> View Logs
+                                    </button>
+                                    <button onclick="openApp('{{ app_key }}', {{ app_status[app_key]['port'] }})" id="open-{{ app_key }}" class="open-button" {% if app_status[app_key]['status'] == 'stopped' %}disabled{% endif %}>
+                                        <i class="fas fa-external-link-alt"></i> Open App
+                                    </button>
+                                    <button onclick="forceKillApp('{{ app_key }}')" id="force-kill-{{ app_key }}" class="force-kill-button">
+                                        <i class="fas fa-skull-crossbones"></i> Force Kill
+                                    </button>
+                                    {% if app_status[app_key]['dirs_ok'] and app_status[app_key]['is_bcomfy'] %}
+                                        <button onclick="fixCustomNodes('{{ app_key }}')" id="fix-custom-nodes-{{ app_key }}" class="fix-custom-nodes-button">
+                                            <i class="fas fa-wrench"></i> Fix Custom Nodes
+                                        </button>
+                                    {% endif %}
+                                </div>
+                                <span id="status-{{ app_key }}" class="status status-{{ app_status[app_key]['status'] }}">
+                                    {{ app_status[app_key]['status'] | capitalize }}
+                                </span>
+                            {% else %}
+                                <p class="error-message">{{ app_status[app_key]['message'] }}</p>
+                                {% if not app_status[app_key]['installed'] %}
+                                    <div class="install-container">
+                                        <button onclick="installApp('{{ app_key }}')" id="install-{{ app_key }}" class="install-button" {% if app_status[app_key]['install_status']['status'] == 'in_progress' %}disabled{% endif %}>
+                                            <i class="fas fa-download"></i> {% if app_status[app_key]['install_status']['status'] == 'in_progress' %}Installing...{% else %}Install {{ app_info.name }}{% endif %}
+                                        </button>
+                                        <div id="install-progress-{{ app_key }}" class="install-progress" {% if app_status[app_key]['install_status']['status'] == 'in_progress' %}style="display: block;"{% endif %}>
+                                            <div class="progress-container">
+                                                <div class="progress-label">Download Progress:</div>
+                                                <div class="progress-bar">
+                                                    <div class="progress-bar-fill download-progress" style="width: 0%">0%</div>
+                                                </div>
+                                            </div>
+                                            <div class="progress-container">
+                                                <div class="progress-label">Unpack Progress:</div>
+                                                <div class="progress-bar">
+                                                    <div class="progress-bar-fill unpack-progress" style="width: 0%">0%</div>
+                                                </div>
+                                            </div>
+                                            <div class="download-info">
+                                                <span class="download-speed"></span>
+                                                <span class="download-eta"></span>
+                                            </div>
+                                            <div class="install-stage"></div>
+                                        </div>
+                                    </div>
+                                    <div id="install-logs-{{ app_key }}" class="install-logs"></div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="logs-section">
+                    <h2 id="currentAppName">Logs</h2>
+                    <div id="logs-container">
+                        <div id="logs"></div>
+                        <button id="downloadLogsBtn" class="download-logs-btn" title="Download Logs" style="display: none;">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="settings-tab" class="tab-content" style="display: none;">
+                <h2>Settings</h2>
+                <div class="settings-container">
+                    <div class="settings-grid">
+                        <div class="setting-group">
+                            <h3>SSH Connection</h3>
+                            <div class="ssh-details">
+                                <p><strong>IP Address:</strong> <span id="sshIp"></span></p>
+                                <p><strong>Port:</strong> <span id="sshPort"></span></p>
+                                <p><strong>Username:</strong> root</p>
+                                <p><strong>Command:</strong> <code id="sshCommand"></code></p>
+                                <button onclick="copySshCommand()" class="settings-button">Copy SSH Command</button>
+                                <div class="ssh-password-form">
+                                    <input type="password" id="newSshPassword" placeholder="Enter new SSH password">
+                                    <div class="password-buttons">
+                                        <button onclick="togglePasswordVisibility()" class="settings-button">Show/Hide</button>
+                                        <button onclick="setCustomSshPassword()" class="settings-button">Set Password</button>
+                                    </div>
+                                    <p class="ssh-security-notice">Note: SSH key-based authentication is more secure than password-based authentication.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <h3>File Browser</h3>
+                            <p>Status: <span id="filebrowser-status">Checking...</span></p>
+                            <button onclick="controlFileBrowser('start')" id="start-filebrowser" class="settings-button">Start File Browser</button>
+                            <button onclick="controlFileBrowser('stop')" id="stop-filebrowser" class="settings-button">Stop File Browser</button>
+                            <div class="app" style="margin-top: 20px;">
+                                <button onclick="openFileBrowser()" class="settings-button" style="width: 100%; margin-bottom: 15px;">Access File Browser</button>
+                                <p style="font-size: 16px; line-height: 1.5;">
+                                    Default credentials:<br>
+                                    <strong>Username:</strong> admin<br>
+                                    <strong>Password:</strong> admin
+                                </p>
+                            </div>
+                        </div>
+                        <div class="setting-group">
+                            <h3>Shared Model Folders and Symlinks</h3>
+                            <p>Manage shared model folders and symlinks across all apps.</p>
+                            <button onclick="createSharedFolders()" class="settings-button">Create Shared Folders</button>
+                            <button onclick="recreateSymlinks()" class="settings-button">Recreate Symlinks</button>
+                            <p id="shared-folders-status"></p>
+                            <p id="symlink-status"></p>
+                        </div>
+                        <!-- Add more setting groups here as needed -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="copyright">
+        &copy; 2024 RunPod Better App Manager. Created by Madiator2011.
+    </div>
+
+    <div id="poddy"></div>
+
+    <!-- Add this just before the closing </body> tag -->
+    <div id="poddy-animation" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999;">
+        <div id="poddy-container"></div>
+        <div id="special-item" style="display: none;"></div>
+        <audio id="poddy-audio" loop>
+            <source src="/static/poddy-song.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <script>
+        const appStatuses = {};
+        let currentLogApp = null;
+        let currentLogAppName = null;
+        const podId = '{{ pod_id }}';
+        const WS_PORT = 7222;  // This is the Nginx port
+        const WS_URL = `wss://${podId}-${WS_PORT}.proxy.runpod.net/ws`;
+
+        let socket;
+        let heartbeatInterval;
+
+        function updateAppStatus(appKey, status) {
+            appStatuses[appKey] = status;
+            const statusElement = document.getElementById(`status-${appKey}`);
+            if (statusElement) {
+                statusElement.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                statusElement.className = `status status-${status}`;
+                document.getElementById(`start-${appKey}`).disabled = (status === 'running');
+                document.getElementById(`stop-${appKey}`).disabled = (status === 'stopped');
+                document.getElementById(`open-${appKey}`).disabled = (status === 'stopped');
+            }
+        }
+
+        async function startApp(appKey) {
+            const response = await fetch(`/start/${appKey}`);
+            const data = await response.json();
+            if (data.status === 'started') {
+                updateAppStatus(appKey, 'running');
+                // Automatically switch to the logs of the started app
+                viewLogs(appKey, appConfigs[appKey].name);
+            } else if (data.status === 'error') {
+                alert(data.message);
+            }
+        }
+
+        async function stopApp(appKey) {
+            const response = await fetch(`/stop/${appKey}`);
+            const data = await response.json();
+            if (data.status === 'stopped') {
+                updateAppStatus(appKey, 'stopped');
+            } else if (data.status === 'error') {
+                alert(data.message);
+            }
+            // Immediately update the status after stopping
+            await updateStatus();
+        }
+
+        function openApp(appKey, port) {
+            const url = `https://${podId}-${port}.proxy.runpod.net/`;
+            window.open(url, '_blank');
+        }
+
+        async function updateStatus() {
+            const response = await fetch('/status');
+            const data = await response.json();
+            for (const [appKey, status] of Object.entries(data)) {
+                updateAppStatus(appKey, status);
+            }
+        }
+
+        function viewLogs(appKey, appName) {
+            currentLogApp = appKey;
+            currentLogAppName = appName;
+            document.getElementById('currentAppName').textContent = `Logs: ${appName}`;
+            updateLogs();
+            // Show the download button when logs are being viewed
+            document.getElementById('downloadLogsBtn').style.display = 'flex';
+        }
+
+        function updateLogs() {
+            if (currentLogApp) {
+                fetch(`/logs/${currentLogApp}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const logsDiv = document.getElementById('logs');
+                        const wasScrolledToBottom = logsDiv.scrollHeight - logsDiv.clientHeight <= logsDiv.scrollTop + 1;
+                        logsDiv.textContent = data.logs.join('\n');
+                        if (wasScrolledToBottom) {
+                            logsDiv.scrollTop = logsDiv.scrollHeight;
+                        }
+                        document.getElementById('downloadLogsBtn').style.display = 'flex';
+                    });
+            } else {
+                document.getElementById('downloadLogsBtn').style.display = 'none';
+            }
+        }
+
+        function openTab(evt, tabName) {
+            var i, tabContent, tabLinks;
+            tabContent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabContent.length; i++) {
+                tabContent[i].style.display = "none";
+            }
+            tabLinks = document.getElementsByClassName("tab-link");
+            for (i = 0; i < tabLinks.length; i++) {
+                tabLinks[i].className = tabLinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = tabName === 'apps-tab' ? 'flex' : 'block';
+            evt.currentTarget.className += " active";
+
+            if (tabName === 'settings-tab') {
+                clearLogs();
+                loadSshDetails();
+            }
+        }
+
+        async function forceKillApp(appKey) {
+            if (confirm(`Are you sure you want to force kill ${appKey}? This may cause data loss.`)) {
+                try {
+                    const response = await fetch(`/force_kill/${appKey}`, { method: 'POST' });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    if (data.status === 'killed') {
+                        updateAppStatus(appKey, 'stopped');
+                        alert(data.message);
+                    } else {
+                        alert(`Error: ${data.message}`);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert(`Error killing ${appKey}: ${error.message}`);
+                }
+                await updateStatus();
+            }
+        }
+
+        function initializeUI() {
+            updateStatus(); // Initial status update
+            setInterval(updateStatus, 5000);
+            setInterval(updateLogs, 1000);
+            
+            // Check for ongoing installations
+            {% for app_key, status in app_status.items() %}
+                {% if status['install_status']['status'] == 'in_progress' %}
+                    updateInstallProgress({
+                        app_name: '{{ app_key }}',
+                        percentage: {{ status['install_status']['progress'] }},
+                        stage: '{{ status['install_status']['stage'] }}'
+                    });
+                {% endif %}
+            {% endfor %}
+        }
+
+        function connectWebSocket() {
+            socket = new WebSocket(WS_URL);
+
+            socket.onopen = function(e) {
+                console.log("Connected to WebSocket");
+                document.getElementById('loadingOverlay').style.display = 'none';
+                startHeartbeat();
+                initializeUI();
+            };
+
+            socket.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    console.log(`Data received from server:`, data);
+                    
+                    if (data.type === 'heartbeat') {
+                        sendWebSocketMessage('heartbeat', {});
+                    } else if (data.type === 'install_progress') {
+                        updateInstallProgress(data.data);
+                    } else if (data.type === 'install_log') {
+                        appendToInstallLogs(data.data);
+                    } else if (data.type === 'install_complete') {
+                        handleInstallComplete(data.data);
+                    }
+                } catch (error) {
+                    console.error('Error parsing WebSocket message:', error, 'Raw message:', event.data);
+                    appendToInstallLogs({app_name: 'system', log: `Error: ${error.message}`});
+                }
+            };
+
+            socket.onclose = function(event) {
+                if (event.wasClean) {
+                    console.log(`Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+                } else {
+                    console.log('Connection died');
+                }
+                stopHeartbeat();
+                document.getElementById('loadingOverlay').style.display = 'flex';
+                document.getElementById('loadingMessage').textContent = 'WebSocket disconnected. Attempting to reconnect...';
+                setTimeout(connectWebSocket, 5000); // Attempt to reconnect after 5 seconds
+            };
+
+            socket.onerror = function(error) {
+                console.log(`WebSocket Error: ${error.message}`);
+                document.getElementById('loadingMessage').textContent = 'Error connecting to WebSocket. Retrying...';
+            };
+        }
+
+        function startHeartbeat() {
+            heartbeatInterval = setInterval(() => {
+                if (socket.readyState === WebSocket.OPEN) {
+                    sendWebSocketMessage('heartbeat', {});
+                }
+            }, 60000); // Send heartbeat every 60000 milliseconds (1 minute)
+        }
+
+        function stopHeartbeat() {
+            clearInterval(heartbeatInterval);
+        }
+
+        function sendWebSocketMessage(type, data) {
+            if (socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({ type, data }));
+            }
+        }
+
+        // Initialize WebSocket connection
+        connectWebSocket();
+
+        async function installApp(appKey) {
+            const installButton = document.getElementById(`install-${appKey}`);
+            const progressContainer = document.getElementById(`install-progress-${appKey}`);
+            const logsContainer = document.getElementById(`install-logs-${appKey}`);
+
+            installButton.disabled = true;
+            progressContainer.style.display = 'block';
+            logsContainer.style.display = 'block';
+            logsContainer.textContent = '';
+
+            try {
+                const response = await fetch(`/install/${appKey}`, { method: 'POST' });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    const data = await response.json();
+                    if (data.status !== 'success') {
+                        throw new Error(data.message);
+                    }
+                } else {
+                    throw new Error("Received non-JSON response from server");
+                }
+
+                // Don't reload the page here, wait for the WebSocket 'install_complete' message
+            } catch (error) {
+                console.error('Installation error:', error);
+                appendToInstallLogs({app_name: appKey, log: `Error: ${error.message}`});
+            }
+            // Don't re-enable the button here, it will be handled by the WebSocket messages
+        }
+
+        function updateInstallProgress(data) {
+            const progressContainer = document.getElementById(`install-progress-${data.app_name}`);
+            const downloadProgress = progressContainer.querySelector('.download-progress');
+            const unpackProgress = progressContainer.querySelector('.unpack-progress');
+            const speedDisplay = progressContainer.querySelector('.download-speed');
+            const etaDisplay = progressContainer.querySelector('.download-eta');
+            const stageDisplay = progressContainer.querySelector('.install-stage');
+            
+            progressContainer.style.display = 'block';
+            
+            if (data.stage === 'Downloading') {
+                downloadProgress.style.width = `${data.percentage}%`;
+                downloadProgress.textContent = `${data.percentage.toFixed(2)}%`;
+                speedDisplay.textContent = `Speed: ${data.speed}`;
+                etaDisplay.textContent = `ETA: ${formatTime(parseInt(data.eta))}`;
+            } else if (data.stage === 'Unpacking') {
+                unpackProgress.style.width = `${data.percentage}%`;
+                unpackProgress.textContent = `${data.percentage.toFixed(2)}%`;
+                speedDisplay.textContent = `Processed: ${data.processed} / ${data.total} files`;
+                etaDisplay.textContent = '';
+            } else if (data.stage === 'Download Complete') {
+                downloadProgress.style.width = '100%';
+                downloadProgress.textContent = '100%';
+                speedDisplay.textContent = '';
+                etaDisplay.textContent = '';
+            }
+            
+            stageDisplay.textContent = `Stage: ${data.stage}`;
+        }
+
+        function formatTime(seconds) {
+            if (seconds < 60) {
+                return `${seconds} seconds`;
+            } else if (seconds < 3600) {
+                return `${Math.floor(seconds / 60)} minutes ${seconds % 60} seconds`;
+            } else {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                return `${hours} hours ${minutes} minutes`;
+            }
+        }
+
+        function appendToInstallLogs(data) {
+            const logsContainer = document.getElementById(`install-logs-${data.app_name}`);
+            const logEntry = document.createElement('div');
+            logEntry.textContent = data.log;
+            logsContainer.appendChild(logEntry);
+            logsContainer.scrollTop = logsContainer.scrollHeight;
+        }
+
+        function handleInstallComplete(data) {
+            const installButton = document.getElementById(`install-${data.app_name}`);
+            if (data.status === 'success') {
+                console.log(data.message);
+                location.reload();  // Reload the page to reflect the new installation status
+            } else {
+                console.error(`Installation failed: ${data.message}`);
+                installButton.disabled = false;  // Re-enable the button only on failure
+            }
+        }
+
+        // Add this new object to store app configurations
+        const appConfigs = {};
+        {% for app_key, app_info in apps.items() %}
+        appConfigs['{{ app_key }}'] = { name: '{{ app_info.name }}' };
+        {% endfor %}
+
+        async function fixCustomNodes(appKey) {
+            const fixButton = document.getElementById('fix-custom-nodes-' + appKey);
+            let logsContainer = document.getElementById('install-logs-' + appKey);
+            
+            // Create logs container if it doesn't exist
+            if (!logsContainer) {
+                logsContainer = document.createElement('div');
+                logsContainer.id = 'install-logs-' + appKey;
+                logsContainer.className = 'install-logs';
+                fixButton.parentNode.insertBefore(logsContainer, fixButton.nextSibling);
+            }
+            
+            fixButton.disabled = true;
+            logsContainer.style.display = 'block';
+            appendToInstallLogs({app_name: appKey, log: "Starting to fix custom nodes..."});
+
+            try {
+                const response = await fetch('/fix_custom_nodes/' + appKey, { method: 'POST' });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    appendToInstallLogs({app_name: appKey, log: 'Success: ' + data.message});
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                console.error('Error fixing custom nodes:', error);
+                appendToInstallLogs({app_name: appKey, log: 'Error: ' + error.message});
+            } finally {
+                fixButton.disabled = false;
+            }
+        }
+
+        // Poddy animation
+        const secretSequence = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65];
+        let sequenceIndex = 0;
+        let lastKeyTime = 0;
+        let animationInterval;
+        let specialItemInterval;
+        let currentSpecialItem = '';
+
+        document.addEventListener('keydown', (e) => {
+            const currentTime = new Date().getTime();
+            if (currentTime - lastKeyTime > 1000) {
+                sequenceIndex = 0;
+            }
+            lastKeyTime = currentTime;
+
+            if (e.keyCode === secretSequence[sequenceIndex]) {
+                sequenceIndex++;
+                if (sequenceIndex === secretSequence.length) {
+                    startPoddyAnimation();
+                    sequenceIndex = 0;
+                }
+            } else {
+                sequenceIndex = 0;
+            }
+        });
+
+        function startPoddyAnimation() {
+            const animationContainer = document.getElementById('poddy-animation');
+            const poddyContainer = document.getElementById('poddy-container');
+            const specialItem = document.getElementById('special-item');
+            const audio = document.getElementById('poddy-audio');
+
+            animationContainer.style.display = 'block';
+            audio.play();
+
+            let animationTime = 0;
+            const poddyInterval = 400; // 0.4 seconds between each Poddy spawn attempt
+            const mushroomDuration = 1200; // 1.2 seconds for mushroom display
+            const snakeDuration = 6000; // 6 seconds for snake animation
+            let poddies = [];
+
+            const animationInterval = setInterval(() => {
+                animationTime += 100; // Increment by 100ms each interval
+
+                // Poddy animation
+                if (animationTime % poddyInterval === 0 && poddies.length < 15) {
+                    if (Math.random() < 0.7) { // 70% chance to spawn a new Poddy
+                        const poddy = document.createElement('div');
+                        poddy.className = 'poddy';
+                        poddy.style.left = `${Math.random() * 90}vw`;
+                        poddy.style.top = `${Math.random() * 90}vh`;
+                        poddyContainer.appendChild(poddy);
+                        poddy.style.animation = 'dance 0.6s infinite, wiggle 0.3s infinite';
+                        poddies.push(poddy);
+                    }
+                }
+
+                // Mushroom animation
+                if ([5000, 11000, 18000, 35000, 41000, 47000, 53000, 72000].includes(animationTime)) {
+                    poddies.forEach(poddy => poddyContainer.removeChild(poddy));
+                    poddies = [];
+                    specialItem.style.backgroundImage = "url('/static/mushroom.png')";
+                    specialItem.style.display = 'block';
+                    specialItem.style.left = '50%';
+                    specialItem.style.top = '50%';
+                    specialItem.style.transform = 'translate(-50%, -50%) scale(1)';
+                    setTimeout(() => {
+                        specialItem.style.transform = 'translate(-50%, -50%) scale(3)';
+                    }, 100);
+                    setTimeout(() => {
+                        specialItem.style.display = 'none';
+                        specialItem.style.transform = 'translate(-50%, -50%) scale(1)';
+                    }, mushroomDuration);
+                }
+
+                // Snake animation
+                if (animationTime === 24000 || animationTime === 60000) {
+                    poddies.forEach(poddy => poddyContainer.removeChild(poddy));
+                    poddies = [];
+                    specialItem.style.backgroundImage = "url('/static/snake.png')";
+                    specialItem.style.display = 'block';
+                    specialItem.style.left = '-30vw';
+                    specialItem.style.top = '50%';
+                    specialItem.style.transform = 'translateY(-50%)';
+                    specialItem.style.transition = `left ${snakeDuration/1000}s linear`;
+                    setTimeout(() => {
+                        specialItem.style.left = '100vw';
+                    }, 100);
+                    setTimeout(() => {
+                        specialItem.style.display = 'none';
+                        specialItem.style.transition = 'none';
+                        specialItem.style.left = '-30vw';
+                    }, snakeDuration);
+                }
+
+                if (animationTime >= 73000) { // End animation after 73 seconds (1:13)
+                    clearInterval(animationInterval);
+                    animationContainer.style.display = 'none';
+                    poddyContainer.innerHTML = '';
+                    specialItem.style.display = 'none';
+                    audio.pause();
+                    audio.currentTime = 0;
+                }
+            }, 100);
+        }
+
+        document.getElementById('downloadLogsBtn').addEventListener('click', () => {
+            if (currentLogApp && currentLogAppName) {
+                downloadLogs(currentLogApp, currentLogAppName);
+            } else {
+                alert('Please select an app to view logs before downloading.');
+            }
+        });
+
+        async function downloadLogs(appKey, appName) {
+            try {
+                const response = await fetch('/logs/' + appKey);
+                    const data = await response.json();
+                const logs = data.logs.join('\n');
+
+                const blob = new Blob([logs], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = appName + '_logs.txt';
+                document.body.appendChild(a);
+                a.click();
+
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                } catch (error) {
+                console.error('Error downloading logs:', error);
+                alert('An error occurred while downloading the logs. Please try again.');
+            }
+        }
+
+        // Initialize the logs viewer
+            setInterval(updateLogs, 1000);
+            
+        // Clear logs and hide download button when switching tabs or closing the app
+        function clearLogs() {
+            currentLogApp = null;
+            currentLogAppName = null;
+            document.getElementById('currentAppName').textContent = 'Logs';
+            document.getElementById('logs').textContent = '';
+            document.getElementById('downloadLogsBtn').style.display = 'none';
+        }
+
+        // Add this function call where appropriate, e.g., when closing an app or switching tabs
+        // clearLogs();
+
+        function loadSshDetails() {
+            const ip = '{{ RUNPOD_PUBLIC_IP }}';
+            const port = '{{ RUNPOD_TCP_PORT_22 }}';
+            const passwordStatus = '{{ ssh_password_status }}';
+            document.getElementById('sshIp').textContent = ip;
+            document.getElementById('sshPort').textContent = port;
+            
+            const sshCommand = `ssh root@${ip} -p ${port}`;
+            document.getElementById('sshCommand').textContent = sshCommand;
+
+            const newSshPassword = document.getElementById('newSshPassword');
+            const passwordButtons = document.querySelector('.password-buttons');
+            
+            if (passwordStatus === 'set') {
+                newSshPassword.placeholder = "Password is set (hidden)";
+                passwordButtons.style.display = 'flex';
+            } else {
+                newSshPassword.placeholder = "Enter new SSH password";
+                passwordButtons.style.display = 'flex';
+            }
+        }
+
+        function copySshCommand() {
+            const sshCommand = document.getElementById('sshCommand').textContent;
+            navigator.clipboard.writeText(sshCommand).then(() => {
+                alert('SSH command copied to clipboard!');
+            }, (err) => {
+                console.error('Could not copy text: ', err);
+                alert('Failed to copy SSH command. Please copy it manually.');
+            });
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('newSshPassword');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                if (passwordInput.placeholder === "Password is set (hidden)") {
+                    passwordInput.value = "{{ ssh_password }}";
+                }
+                } else {
+                passwordInput.type = 'password';
+                if (passwordInput.value === "{{ ssh_password }}") {
+                    passwordInput.value = '';
+                    passwordInput.placeholder = "Password is set (hidden)";
+                }
+            }
+        }
+
+        async function setCustomSshPassword() {
+            const newPassword = document.getElementById('newSshPassword').value;
+            if (!newPassword) {
+                alert('Please enter a password.');
+                return;
+            }
+            
+            if (confirm('Warning: Password-based SSH authentication is less secure than key-based authentication. Are you sure you want to set a password?')) {
+                try {
+                    const response = await fetch('/set_ssh_password', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ password: newPassword }),
+                    });
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        alert('SSH password set successfully.');
+                        document.getElementById('newSshPassword').value = '';
+                        document.getElementById('newSshPassword').placeholder = 'Password is set (hidden)';
+                    } else {
+                        alert('Failed to set SSH password: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Error setting SSH password:', error);
+                    alert('An error occurred while setting the SSH password.');
+                }
+            }
+        }
+
+        // Call loadSshDetails when the page loads
+        document.addEventListener('DOMContentLoaded', loadSshDetails);
+
+        function openFileBrowser() {
+            const podId = '{{ pod_id }}';
+            const url = `https://${podId}-7222.proxy.runpod.net/fileapp/`;
+            window.open(url, '_blank');
+        }
+
+        async function controlFileBrowser(action) {
+            try {
+                const response = await fetch(`/${action}_filebrowser`);
+                const result = await response.json();
+                if (result.status === 'started' || result.status === 'stopped') {
+                    updateFileBrowserStatus();
+                }
+            } catch (error) {
+                console.error('Error controlling File Browser:', error);
+            }
+        }
+
+        async function updateFileBrowserStatus() {
+            try {
+                const response = await fetch('/filebrowser_status');
+                const result = await response.json();
+                const statusElement = document.getElementById('filebrowser-status');
+                if (statusElement) {
+                    statusElement.textContent = result.status;
+                }
+                const startButton = document.getElementById('start-filebrowser');
+                const stopButton = document.getElementById('stop-filebrowser');
+                if (startButton && stopButton) {
+                    startButton.disabled = (result.status === 'running');
+                    stopButton.disabled = (result.status === 'stopped');
+                }
+            } catch (error) {
+                console.error('Error updating File Browser status:', error);
+            }
+        }
+
+        // Call this function periodically to update the status
+        setInterval(updateFileBrowserStatus, 5000);
+
+        // Update the DOMContentLoaded event listener
+        document.addEventListener('DOMContentLoaded', function() {
+            updateFileBrowserStatus();
+            // ... (other initialization code)
+        });
+
+        // Call this function periodically
+        setInterval(updateLogs, 1000);
+
+        // Add a function to handle window resizing
+        function handleResize() {
+            const contentContainer = document.querySelector('.content-container');
+            const navbar = document.querySelector('.navbar');
+            const windowHeight = window.innerHeight;
+            const navbarHeight = navbar.offsetHeight;
+            contentContainer.style.height = `${windowHeight - navbarHeight}px`;
+
+            const appsSection = document.querySelector('.apps-section');
+            const logsSection = document.querySelector('.logs-section');
+            if (window.innerWidth <= 768) {
+                appsSection.style.height = `${(windowHeight - navbarHeight) / 2}px`;
+                logsSection.style.height = `${(windowHeight - navbarHeight) / 2}px`;
+            } else {
+                appsSection.style.height = `${windowHeight - navbarHeight}px`;
+                logsSection.style.height = `${windowHeight - navbarHeight}px`;
+            }
+        }
+
+        // Call handleResize on page load and window resize
+        window.addEventListener('load', handleResize);
+        window.addEventListener('resize', handleResize);
+
+        async function createSharedFolders() {
+            const statusElement = document.getElementById('shared-folders-status');
+            statusElement.textContent = 'Creating shared folders...';
+            try {
+                const response = await fetch('/create_shared_folders', { method: 'POST' });
+                const data = await response.json();
+            if (data.status === 'success') {
+                    statusElement.textContent = data.message;
+            } else {
+                    statusElement.textContent = 'Error: ' + data.message;
+                }
+            } catch (error) {
+                statusElement.textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function recreateSymlinks() {
+            const statusElement = document.getElementById('symlink-status');
+            statusElement.textContent = 'Recreating symlinks...';
+            try {
+                const response = await fetch('/recreate_symlinks', { method: 'POST' });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    statusElement.textContent = data.message;
+                } else {
+                    statusElement.textContent = 'Error: ' + data.message;
+                }
+            } catch (error) {
+                statusElement.textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+Flask
+flask-sock
+psutil
+gevent
+gevent-websocket
+gunicorn
+requests
+gitpython
+tqdm
+cryptography
+pexpect
+zstandard

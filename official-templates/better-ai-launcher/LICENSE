@@ -1,5 +1,33 @@
+GNU GENERAL PUBLIC LICENSE
+Version 3, 29 June 2007
 
+Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
+Everyone is permitted to copy and distribute verbatim copies of this license document, but changing it is not allowed.
 
+Preamble
+--------
+The GNU General Public License is a free, copyleft license for software and other kinds of works. The aim of the GNU General Public License is to ensure the freedom to share and modify the software, while ensuring that it remains free for all users.
+
+### Additional Terms for Better AI Launcher
+
+This project contains components licensed under the GNU General Public License version 3, with additional terms applying to the following directory: `official-templates/better-ai-launcher`.
+
+**Additional Terms:**
+1. **Attribution Requirement**: The following footer must be retained in all distributions of the Better AI Launcher, both original and modified:
+
+   ```
+   © 2024 RunPod Better App Manager. Created by Madiator2011.
+   ```
+
+2. **Modification Documentation**: Any modifications made to the files within the `better-ai-launcher` folder must be documented clearly. This documentation should be added either as comments in the relevant files or as an accompanying document outlining the changes.
+
+3. **Commercial Use Restrictions**: This template may not be used for unauthorized commercial purposes without express permission from the copyright holder.
+
+4. **Notice Preservation**: You must retain all copyright notices and licensing conditions in every copy or substantial portion of the Better AI Launcher, ensuring that any redistributed version maintains the original attributions.
+
+The GPL-3.0 License continues to apply to the rest of this project. These additional permissions ensure proper attribution and aim to protect the `better-ai-launcher` from unauthorized or inappropriate use.
+
+### Full License
 
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
@@ -12,12 +40,6 @@
 
   The GNU General Public License is a free, copyleft license for
 software and other kinds of works.
-
-### Additional Licensing Terms Notice
-This repository includes components that have additional licensing conditions beyond the standard GPL-3.0 License.
-
-Specifically, the directory `official-templates/better-ai-launcher` is subject to **additional terms** that are detailed in a separate license file located in that directory. Please review the file `official-templates/better-ai-launcher/LICENSE` for more information about the special requirements for using or modifying the Better AI Launcher template.
-
 
   The licenses for most software and other practical works are designed
 to take away your freedom to share and change the works.  By contrast,
